@@ -25,7 +25,7 @@ echo -e "\n### using OMP_NUM_THREADS=$TOTAL_CORES"
 echo -e "### using $KMP_SETTING"
 echo -e "### using KMP_BLOCKTIME=$KMP_BLOCKTIME\n"
 
-time_steps="35 50"
+time_steps="35 50 100"
 batch_sizes="1"
 hidden_sizes="300 500 800 1000"
 
