@@ -7,8 +7,8 @@ import torch.optim as optim
 import time
 import subprocess
 
-steps = 20 # nb of steps in loop to average perf
-nDryRuns = 10 # nb of warmup steps
+steps = 100 # nb of steps in loop to average perf
+nDryRuns = 100 # nb of warmup steps
 
 parser = argparse.ArgumentParser(description='PyTorch Convnet Benchmark')
 parser.add_argument('--no_cuda', action='store_true', default=False,
