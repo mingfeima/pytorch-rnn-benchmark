@@ -51,3 +51,9 @@ echo -e "\n### using OMP_NUM_THREADS=1"
 echo -e "### using layer=$T"
 OMP_NUM_THREADS=1 $PREFIX python -u benchmark.py $ARGS --time_step=1 --layers=$T --batch_size=$N --input_size=$I --hidden_size=$H
 OMP_NUM_THREADS=1 $PREFIX python -u benchmark.py $ARGS --time_step=1 --layers=$T --batch_size=$N --input_size=$I --hidden_size=$H --disable-mkldnn
+
+### single thread test
+echo -e "\n### using OMP_NUM_THREADS=1"
+echo -e "### using layer=1"
+OMP_NUM_THREADS=1 $PREFIX python -u benchmark.py $ARGS --time_step=1 --layers=1 --batch_size=$N --input_size=$I --hidden_size=$H
+OMP_NUM_THREADS=1 $PREFIX python -u benchmark.py $ARGS --time_step=1 --layers=1 --batch_size=$N --input_size=$I --hidden_size=$H --disable-mkldnn
