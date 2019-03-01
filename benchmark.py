@@ -48,13 +48,15 @@ D = 2 if args.bidirectional else 1
 
 ### i wrote torch._C._set_mkldnn_enabled with MKLDNN RNN in the same PR
 ### the flag is used to turn on/off MKLDNN functionality
-if hasattr(torch._C, '_set_mkldnn_enabled'):
-    if args.disable_mkldnn:
-        torch._C._set_mkldnn_enabled(False)
-else:
-    if not args.cuda:
-        print("You are runnning on PyTorch without torch._C._set_mkldnn_enabled,",
-              "perhaps MKLDNN RNN API is not integrated!")
+### this logic is no longer functional since FB engineer requires to remove
+### the runtime hook of mkldnn
+#if hasattr(torch._C, '_set_mkldnn_enabled'):
+#    if args.disable_mkldnn:
+#        torch._C._set_mkldnn_enabled(False)
+#else:
+#    if not args.cuda:
+#        print("You are runnning on PyTorch without torch._C._set_mkldnn_enabled,",
+#              "perhaps MKLDNN RNN API is not integrated!")
 
 if args.cuda:
     import torch.backends.cudnn as cudnn

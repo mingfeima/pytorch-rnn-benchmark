@@ -36,7 +36,6 @@ for ts in $time_steps; do
     for bs in $batch_sizes; do
         for hs in $hidden_sizes; do
             python -u benchmark.py $ARGS --time_step=$ts --batch_size=$bs --input_size=$hs --hidden_size=$hs
-            python -u benchmark.py $ARGS --time_step=$ts --batch_size=$bs --input_size=$hs --hidden_size=$hs --disable-mkldnn
         done
     done
 done
