@@ -7,14 +7,14 @@ import torch.optim as optim
 import time
 import subprocess
 
-steps = 100 # nb of steps in loop to average perf
+steps = 1000 # nb of steps in loop to average perf
 nDryRuns = 100 # nb of warmup steps
 
 parser = argparse.ArgumentParser(description='PyTorch Convnet Benchmark')
 parser.add_argument('--no_cuda', action='store_true', default=False,
                     help='use cuda')
-parser.add_argument("--disable-mkldnn", action='store_true', default=False,
-                    help='disable mkldnn')
+parser.add_argument("--mkldnn", action='store_true', default=False,
+                    help='use mkldnn')
 parser.add_argument('--inference', action='store_true', default=False,
                     help='run inference only')
 parser.add_argument('--time_step', type=int, default=50,
@@ -46,17 +46,6 @@ I = args.input_size
 H = args.hidden_size
 D = 2 if args.bidirectional else 1
 
-### i wrote torch._C._set_mkldnn_enabled with MKLDNN RNN in the same PR
-### the flag is used to turn on/off MKLDNN functionality
-### this logic is no longer functional since FB engineer requires to remove
-### the runtime hook of mkldnn
-#if hasattr(torch._C, '_set_mkldnn_enabled'):
-#    if args.disable_mkldnn:
-#        torch._C._set_mkldnn_enabled(False)
-#else:
-#    if not args.cuda:
-#        print("You are runnning on PyTorch without torch._C._set_mkldnn_enabled,",
-#              "perhaps MKLDNN RNN API is not integrated!")
 
 if args.cuda:
     import torch.backends.cudnn as cudnn
@@ -64,7 +53,7 @@ if args.cuda:
     cudnn.deterministic = True
     kernel_name = 'cudnn'
 else:
-    kernel_name = 'cpu   ' if args.disable_mkldnn else 'mkldnn'
+    kernel_name = 'mkldnn' if args.mkldnn else 'cpu'
 
 def _time():
     if args.cuda:
@@ -74,9 +63,14 @@ def _time():
 
 if args.model_type == 'gru':
     hx = torch.randn(L*D, N, H).type(dtype)
+    if args.mkldnn:
+        hx = hx.to_mkldnn()
     rnn = nn.GRU
 else:
-    hx = (torch.randn(L*D, N, H).type(dtype), torch.randn(L*D, N, H).type(dtype))
+    hx_, cx_ = torch.randn(L*D, N, H).type(dtype), torch.randn(L*D, N, H).type(dtype)
+    if args.mkldnn:
+        hx_, cx_ = hx_.to_mkldnn(), cx_.to_mkldnn()
+    hx = (hx_, cx_)
     rnn = nn.LSTM
 
 x = torch.randn(T, N, I).type(dtype)
@@ -89,6 +83,11 @@ else:
 
 if args.cuda:
     model.cuda()
+
+if args.mkldnn:
+    from torch.utils import mkldnn as mkldnn_utils
+    model = mkldnn_utils.to_mkldnn(model)
+    x = x.to_mkldnn()
 
 for i in range(nDryRuns):
     y, _ = model(x, hx)

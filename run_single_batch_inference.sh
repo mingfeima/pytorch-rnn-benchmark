@@ -6,6 +6,9 @@
 # uncomment the following line to get mkldnn trace log
 # export MKLDNN_VERBOSE=2
 
+# to use mkldnn
+# run_single_batch_inference.sh --mkldnn
+
 ###########################################################
 # RNN configs
 N=1
@@ -18,6 +21,12 @@ H=200
 ARGS=""
 ARGS="$ARGS --inference"
 echo -e "\n### inference mode "
+
+if [[ "$1" == "--mkldnn" ]]; then
+  ARGS="$ARGS --mkldnn"
+  echo "### using mkldnn"
+  shift
+fi
 
 CORES=`lscpu | grep Core | awk '{print $4}'`
 SOCKETS=`lscpu | grep Socket | awk '{print $2}'`
@@ -45,9 +54,9 @@ echo -e "\n### using OMP_NUM_THREADS=1"
 OMP_NUM_THREADS=1 $PREFIX python -u benchmark.py $ARGS --time_step=$T --batch_size=$N --input_size=$I --hidden_size=$H
 
 ### single thread test
-echo -e "\n### using OMP_NUM_THREADS=1"
-echo -e "### using layer=$T"
-OMP_NUM_THREADS=1 $PREFIX python -u benchmark.py $ARGS --time_step=1 --layers=$T --batch_size=$N --input_size=$I --hidden_size=$H
+#echo -e "\n### using OMP_NUM_THREADS=1"
+#echo -e "### using layer=$T"
+#OMP_NUM_THREADS=1 $PREFIX python -u benchmark.py $ARGS --time_step=1 --layers=$T --batch_size=$N --input_size=$I --hidden_size=$H
 
 ### single thread test
 echo -e "\n### using OMP_NUM_THREADS=1"
