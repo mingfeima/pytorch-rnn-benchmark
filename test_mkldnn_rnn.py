@@ -14,14 +14,15 @@ def compare(t1, t2, msg):
     print(msg, "pass" if ret else "fail")
 
 
-def test_lstm_forward(layer=L, bidirectional=True):
-    print("\n##### lstm forward #####", layer, bidirectional)
+def test_lstm_forward(layer=L, bidirectional=True, bias=True):
+    print("##### lstm forward #####", "layer = ", layer,
+          ", bidirectional = ", bidirectional, ", bias = ", bias)
     D = 2 if bidirectional else 1
     input = torch.randn(T, N, I)
     h0 = torch.randn(layer*D, N, H)
     c0 = torch.randn(layer*D, N, H)
 
-    rnn = nn.LSTM(I, H, layer, bidirectional=bidirectional)
+    rnn = nn.LSTM(I, H, layer, bidirectional=bidirectional, bias=bias)
     rnn.eval()
     rnn_mkldnn = mkldnn_utils.to_mkldnn(rnn)
 
@@ -35,13 +36,14 @@ def test_lstm_forward(layer=L, bidirectional=True):
     compare(cy1, cy2, "cy: ")
 
 
-def test_gru_forward(layer=L, bidirectional=True):
-    print("\n##### gru forward #####", layer, bidirectional)
+def test_gru_forward(layer=L, bidirectional=True, bias=True):
+    print("##### gru forward #####", "layer = ", layer,
+          ", bidirectional = ", bidirectional, ", bias = ", bias)
     D = 2 if bidirectional else 1
     input = torch.randn(T, N, I)
     h0 = torch.randn(layer*D, N, H)
 
-    rnn = nn.GRU(I, H, layer, bidirectional=bidirectional)
+    rnn = nn.GRU(I, H, layer, bidirectional=bidirectional, bias=bias)
     rnn.eval()
     rnn_mkldnn = mkldnn_utils.to_mkldnn(rnn)
 
@@ -52,9 +54,11 @@ def test_gru_forward(layer=L, bidirectional=True):
     compare(hy1, hy2, "hy: ")
 
 
-test_lstm_forward()
-test_gru_forward()
-test_lstm_forward(layer=1, bidirectional=False)
-test_gru_forward(layer=1, bidirectional=False)
+
+for bidirectional in [True, False]:
+    for bias in [True, False]:
+        for layer in [1, L]:
+            test_lstm_forward(layer=layer, bidirectional=bidirectional, bias=bias)
+            test_gru_forward(layer=layer, bidirectional=bidirectional, bias=bias)
 
 
