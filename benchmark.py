@@ -1,11 +1,7 @@
 import argparse
 import torch
-from torch.autograd import Variable
 import torch.nn as nn
-import torchvision.models as models
-import torch.optim as optim
 import time
-import subprocess
 
 steps = 1000 # nb of steps in loop to average perf
 nDryRuns = 100 # nb of warmup steps
